@@ -9,7 +9,7 @@ import Graphics.Gloss.Interface.Pure.Game
 handleKeys :: Event -> VGame -> VGame
 
 -- For an 'r' keypress, reset the ball to the center.
-handleKeys (EventKey (Char 'r') _ _ _) game =
+handleKeys (EventKey (Char 'n') _ _ _) game =
     game { player = Sprite 0 (-120) 0 0  }
 
 -- For an 'p' keypress, pause.
@@ -55,6 +55,12 @@ handleKeys (EventKey (Char 'd') Up _ _) game =
     game { player = Sprite w x y (z-150)  }
     where
         Sprite w x y z = player game
+
+-- For a 'j' keypress, shoot current equipped weapon
+handleKeys (EventKey (Char 'j') Down _ _) game =
+    game { isShooting = True  }
+handleKeys (EventKey (Char 'j') Up _ _) game =
+    game { isShooting = False }
 
 -- Do nothing for all other events.
 handleKeys _ game = game
