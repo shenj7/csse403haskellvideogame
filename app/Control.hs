@@ -16,29 +16,29 @@ handleKeys (EventKey (Char 'r') _ _ _) game =
 handleKeys (EventKey (Char 'p') Down _ _) game =
     game { gamePaused = not (gamePaused game)  }
 
--- For an 'w' keypress, move left player up
+-- For an 'w' keypress, move player up
 handleKeys (EventKey (Char 'w') Down _ _) game =
-    game { p2speed = p2speed game + 50  }
+    game { pspeed = pspeed game + 50  }
 handleKeys (EventKey (Char 'w') Up _ _) game =
-    game { p2speed = p2speed game - 50  }
+    game { pspeed = pspeed game - 50  }
 
--- For an 'a' keypress, move left player down
+-- For an 's' keypress, move player down
 handleKeys (EventKey (Char 's') Down _ _) game =
-    game { p2speed = p2speed game - 50  }
+    game { pspeed = pspeed game - 50  }
 handleKeys (EventKey (Char 's') Up _ _) game =
-    game { p2speed = p2speed game + 50  }
+    game { pspeed = pspeed game + 50  }
 
--- For an 's' keypress, move right player up
-handleKeys (EventKey (SpecialKey KeyUp) Down _ _) game =
-    game { p1speed = p1speed game + 50  }
-handleKeys (EventKey (SpecialKey KeyUp) Up _ _) game =
-    game { p1speed = p1speed game - 50  }
+-- For an 'a' keypress, move player left
+handleKeys (EventKey (Char 'a') Down _ _) game =
+    game { pspeed = pspeed game + 50  }
+handleKeys (EventKey (Char 'a') Up _ _) game =
+    game { pspeed = pspeed game - 50  }
 
--- For an 'd' keypress, move right player down
-handleKeys (EventKey (SpecialKey KeyDown) Down _ _) game =
-    game { p1speed = p1speed game - 50  }
-handleKeys (EventKey (SpecialKey KeyDown) Up _ _) game =
-    game { p1speed = p1speed game + 50  }
+-- For an 'd' keypress, move player right
+handleKeys (EventKey (Char 'd') Down _ _) game =
+    game { pspeed = pspeed game - 50  }
+handleKeys (EventKey (Char 'd') Up _ _) game =
+    game { pspeed = pspeed game + 50  }
 
 -- | Update game
 update :: Float -> VGame -> VGame
