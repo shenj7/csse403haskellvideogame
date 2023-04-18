@@ -13,13 +13,15 @@ playerSpeed = 10
 
 -- | Game state
 data VGame = Game {
-    player :: Sprite
+    player :: Sprite,
+    gamePaused  :: Bool
 }
 
 -- | Initial state
 initialState :: VGame
 initialState = Game {
-    player = Sprite 0 (-120) 0 0
+    player = Sprite 0 (-120) 0 0,
+    gamePaused = False
 }
 
 -- | Update sprite
