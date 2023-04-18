@@ -8,10 +8,14 @@ data Sprite = Sprite Float Float Float Float -- Player Float Float Float Float |
 -- | bullet size, speed
 data GunData = GunData Float Float
 
+-- | Bullet Definition
+-- | bullet position, speed
+data Bullet = Bullet Float Float Float Float
+
 -- | Game parameters
-width, height, offset, playerSpeed :: Int
-width = 1000
-height = 800
+width, height, offset, playerSpeed :: Float
+width = 700
+height = 900
 offset = 10
 playerSpeed = 10
 
@@ -20,40 +24,59 @@ data VGame = Game {
     player :: Sprite,
     gamePaused  :: Bool,
     isShooting :: Bool,
-    normalGun :: GunData
+    normalGun :: GunData,
+    bullets :: [Bullet]
 }
 
 -- | Initial state
 initialState :: VGame
 initialState = Game {
-    player = Sprite 0 0 0 0,
+    player = Sprite (-250) 0 0 0,
     gamePaused = False,
     isShooting = False,
-    normalGun = GunData 7 500
+    normalGun = GunData 7 500,
+    bullets = []
 }
 
 -- | Update sprite
 moveSprite :: Float -> VGame -> VGame
-moveSprite seconds game = game { player = newSprite } -- | figure out how to make it get anything out instead of just a player
+moveSprite seconds game = game { player = newSprite, bullets = newBullets } -- | figure out how to make it get anything out instead of just a player
     where
         -- Old locations and velocities.
-        oldSprite = player game
+        Sprite w x y z = player game
+        oldbullets = bullets game
+        shooting = isShooting game
 
         -- New locations.
-        newSprite = calcLoc seconds oldSprite
+        bullet = Bullet w x 500 0
+        oldbullets2 = if shooting then oldbullets ++ [bullet] else oldbullets
+        newSprite = calcLoc seconds (Sprite w x y z)
+        func = calcBulletLoc seconds
+        newBullets = map func oldbullets2
 
 -- | Get new location of sprite
 calcLoc :: Float -> Sprite -> Sprite
 calcLoc seconds (Sprite x y vx vy) = Sprite x' y' vx vy where
-    x' = if x + vx * seconds <= 400 && x + vx * seconds >= (-400) 
+    x' = if x + vx * seconds <= height/2 && x + vx * seconds >= (-height/2) 
         then 
             x + vx * seconds 
         else 
             x
-    y' = if y + vy * seconds <= 500 && y + vy * seconds >= (-500)
+    y' = if y + vy * seconds <= width/2 && y + vy * seconds >= (-width/2)
         then
             y + vy * seconds
         else
             y
 
--- |
+calcBulletLoc :: Float -> Bullet -> Bullet
+calcBulletLoc seconds (Bullet x y vx vy) = Bullet x' y' vx vy where
+    x' = if x + vx * seconds <= 470 && x + vx * seconds >= (-470) 
+        then 
+            x + vx * seconds 
+        else 
+            x
+    y' = if y + vy * seconds <= 370 && y + vy * seconds >= (-370)
+        then
+            y + vy * seconds
+        else
+            y
