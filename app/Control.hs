@@ -1,6 +1,9 @@
 module Control where
 
 import Model
+import Graphics.Gloss
+import Graphics.Gloss.Data.ViewPort
+import Graphics.Gloss.Interface.Pure.Game
 
 -- | Respond to key events.
 handleKeys :: Event -> PongGame -> PongGame
