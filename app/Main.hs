@@ -9,4 +9,4 @@ import View
 import Control
 
 main :: IO ()
-main = display View.window View.background View.drawing
+main = play window background fps initialState render handleKeys update

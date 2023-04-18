@@ -6,8 +6,8 @@ data Sprite = Sprite Float Float Float Float -- Player Float Float Float Float |
 
 -- | Game parameters
 width, height, offset, playerSpeed :: Int
-width = 300
-height = 300
+width = 1000
+height = 800
 offset = 10
 playerSpeed = 10
 
