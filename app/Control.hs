@@ -10,9 +10,7 @@ handleKeys :: Event -> VGame -> VGame
 
 -- For an 'r' keypress, reset the ball to the center.
 handleKeys (EventKey (Char 'n') _ _ _) game =
-    game { player = Sprite resetpos 0 y z  }
-    where
-        Sprite w x y z = player game
+    game { player = playerEntity }
 
 -- For an 'p' keypress, pause.
 handleKeys (EventKey (Char 'p') Down _ _) game =
@@ -20,9 +18,11 @@ handleKeys (EventKey (Char 'p') Down _ _) game =
 
 -- For an 'w' keypress, move player up
 handleKeys (EventKey (Char 'w') Down _ _) game =
-    game { player = Sprite w x (y+150) z  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        Entity a b c d e = player game
+        newEntity = Entity a b c \x -> 
+
 handleKeys (EventKey (Char 'w') Up _ _) game =
     game { player = Sprite w x (y-150) z  }
     where
@@ -69,4 +69,4 @@ handleKeys _ game = game
 
 -- | Update game
 update :: Float -> VGame -> VGame
-update seconds = moveSprite seconds
+update seconds = movePlayer seconds $ moveentity seconds

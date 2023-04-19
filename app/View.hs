@@ -26,7 +26,7 @@ render game =
         playerchar = renderEntity (player game)
 
         clearedlist = removeEntities (entities game)
-        newentities = pictures $ map renderBullets newentities
+        newentities = map renderEntity newentities
 
 renderEntity :: Entity -> Picture
 renderEntity entity = picture

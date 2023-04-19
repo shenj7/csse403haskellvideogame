@@ -70,6 +70,11 @@ initialState = Game {
     selectedGun = Norm
 }
 
+movePlayer :: Float -> VGame -> VGame
+movePlayer seconds game = game {player = newPlayer}
+    where
+        newPlayer = head $ (\x -> (move x) x) (player game)
+
 moveentities :: Float -> VGame -> VGame
 moveentities seconds game = game {entities = newentities}
     where
