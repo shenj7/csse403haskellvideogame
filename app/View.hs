@@ -37,3 +37,8 @@ renderBullets bullet = picture
         Bullet w x y z = bullet
         bulletcolor = red
         picture = uncurry translate (x, w) $ color bulletcolor $ circleSolid 5
+
+renderEnemies :: Enemy -> Picture
+renderEnemies enemy = picture
+    where
+        (x, y) = pos enemy
