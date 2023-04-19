@@ -13,11 +13,12 @@ data GunData = GunData Float Float
 data Bullet = Bullet Float Float Float Float
 
 -- | Game parameters
-width, height, offset, playerSpeed :: Float
+width, height, offset, playerSpeed, resetpos :: Float
 width = 700
 height = 900
 offset = 10
 playerSpeed = 10
+resetpos = -250
 
 -- | Game state
 data VGame = Game {
@@ -31,7 +32,7 @@ data VGame = Game {
 -- | Initial state
 initialState :: VGame
 initialState = Game {
-    player = Sprite (-250) 0 0 0,
+    player = Sprite resetpos 0 0 0,
     gamePaused = False,
     isShooting = False,
     normalGun = GunData 7 500,
@@ -52,7 +53,8 @@ moveSprite seconds game = game { player = newSprite, bullets = newBullets } -- |
         oldbullets2 = if shooting then oldbullets ++ [bullet] else oldbullets
         newSprite = calcLoc seconds (Sprite w x y z)
         func = calcBulletLoc seconds
-        newBullets = map func oldbullets2
+        oldbullets3 = removeBullets oldbullets2
+        newBullets = map func oldbullets3
 
 -- | Get new location of sprite
 calcLoc :: Float -> Sprite -> Sprite
@@ -70,13 +72,36 @@ calcLoc seconds (Sprite x y vx vy) = Sprite x' y' vx vy where
 
 calcBulletLoc :: Float -> Bullet -> Bullet
 calcBulletLoc seconds (Bullet x y vx vy) = Bullet x' y' vx vy where
-    x' = if x + vx * seconds <= 470 && x + vx * seconds >= (-470) 
+    x' = if x + vx * seconds <= 250 && x + vx * seconds >= (-height/2) - 20 
         then 
             x + vx * seconds 
         else 
             x
-    y' = if y + vy * seconds <= 370 && y + vy * seconds >= (-370)
+    y' = if y + vy * seconds <= width/2 + 20 && y + vy * seconds >= (-width/2) - 20
         then
             y + vy * seconds
         else
             y
+
+-- calcoll :: Float -> Bool
+
+removeBullets :: [Bullet] -> [Bullet]
+removeBullets (h:t) = newList
+    where
+        Bullet w x y z = h
+        newList = if x >= (-width/2) - 20 && x <= width/2 + 20 && w >= (-height/2) - 20 && w <= height/2+20
+            then
+                h: removeBullets t
+            else
+                removeBullets t
+
+removeBullets [h] = newList
+    where
+        Bullet w x y z = h
+        newList = if x >= (-width/2) - 20 && x <= width/2 + 20 && w >= (-height/2) - 20 && w <= height/2 + 20
+            then
+                [h]
+            else
+                []
+
+removeBullets [] = []

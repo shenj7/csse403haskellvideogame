@@ -28,14 +28,12 @@ render game =
         playercolor = dark blue
 
         listofbullet = bullets game
-        bulletlist = pictures $ map renderBullets listofbullet
+        rlistofbullet = removeBullets listofbullet
+        bulletlist = pictures $ map renderBullets rlistofbullet
 
 renderBullets :: Bullet -> Picture
 renderBullets bullet = picture
     where
         Bullet w x y z = bullet
-        picture = uncurry translate (x, w) $ color bulletcolor $ circleSolid 5
         bulletcolor = red
-
-
-        
+        picture = uncurry translate (x, w) $ color bulletcolor $ circleSolid 5

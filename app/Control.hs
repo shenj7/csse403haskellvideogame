@@ -10,7 +10,7 @@ handleKeys :: Event -> VGame -> VGame
 
 -- For an 'r' keypress, reset the ball to the center.
 handleKeys (EventKey (Char 'n') _ _ _) game =
-    game { player = Sprite (-250) 0 y z  }
+    game { player = Sprite resetpos 0 y z  }
     where
         Sprite w x y z = player game
 
