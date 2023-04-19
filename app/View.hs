@@ -21,24 +21,15 @@ drawing = circle 20
 
 render :: VGame -> Picture
 render game =
-    pictures [playerchar, bulletlist]
+    pictures [playerchar, newentities]
     where
-        Sprite w x y z = player game
-        playerchar = uncurry translate (x, w) $ color playercolor $ circleSolid 20
-        playercolor = dark blue
+        playerchar = renderEntity (player game)
 
-        listofbullet = bullets game
-        rlistofbullet = removeBullets listofbullet
-        bulletlist = pictures $ map renderBullets rlistofbullet
+        clearedlist = removeEntities (entities game)
+        newentities = pictures $ map renderBullets newentities
 
-renderBullets :: Bullet -> Picture
-renderBullets bullet = picture
+renderEntity :: Entity -> Picture
+renderEntity entity = picture
     where
-        Bullet w x y z = bullet
-        bulletcolor = red
-        picture = uncurry translate (x, w) $ color bulletcolor $ circleSolid 5
-
-renderEnemies :: Enemy -> Picture
-renderEnemies enemy = picture
-    where
-        (x, y) = pos enemy
+        Entity (x, y) shade radius _ _ = entity
+        picture = uncurry translate (x, y) $ color shade $ circleSolid radius

@@ -42,12 +42,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/yangtt/.cabal/bin"
-libdir     = "/home/yangtt/.cabal/lib/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0-inplace-HaskellGame"
-dynlibdir  = "/home/yangtt/.cabal/lib/x86_64-linux-ghc-9.2.7"
-datadir    = "/home/yangtt/.cabal/share/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0"
-libexecdir = "/home/yangtt/.cabal/libexec/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0"
-sysconfdir = "/home/yangtt/.cabal/etc"
+bindir     = "/home/shenj7/.cabal/bin"
+libdir     = "/home/shenj7/.cabal/lib/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0-inplace-HaskellGame"
+dynlibdir  = "/home/shenj7/.cabal/lib/x86_64-linux-ghc-9.2.7"
+datadir    = "/home/shenj7/.cabal/share/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0"
+libexecdir = "/home/shenj7/.cabal/libexec/x86_64-linux-ghc-9.2.7/HaskellGame-0.1.0.0"
+sysconfdir = "/home/shenj7/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "HaskellGame_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "HaskellGame_libdir")     (\_ -> return libdir)
