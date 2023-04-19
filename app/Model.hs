@@ -62,6 +62,7 @@ initialState = Game {
     enemies = createEnemies 10
 }
     where
+        moveFunc = 
 
 createEnemies :: Float -> [Enemies]   
 createEnemies numEnemies startx starty moveFunc = newEnemies
