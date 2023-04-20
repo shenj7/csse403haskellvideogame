@@ -4,11 +4,6 @@ import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game
 
--- | Gun Definition
--- | bullet size, speed
-data GunData = GunData Float Float Float
-data GunSelect = Norm | Shot | Big
-
 
 -- | Entity Definition
 -- | enemy position, speed
@@ -34,6 +29,9 @@ playerEntity = Entity {
     damage = 10
 }
 
+-- | Gun definitions
+data Gun = EmptyGun | DefaultGun -- Add more guns here and at the bottom of the file
+
 -- | Game parameters
 width, height, offset, playerSpeed, resetpos :: Float
 width = 1000
@@ -48,24 +46,17 @@ data VGame = Game {
     entities :: [Entity],
     gamePaused  :: Bool,
     isShooting :: Bool,
-    normalGun :: GunData,
-    shotGun :: GunData,
-    bigGun :: GunData,
-    selectedGun :: GunSelect
+    gun :: Gun
 }
 
 -- | Initial state
 initialState :: VGame
 initialState = Game {
     player = playerEntity,
-    entities = [(Entity (0, 0) (0, 10) red 10 standardMove 10 10),
-                (Entity (0, 100) (0, 0) green 10 standardMove 10 10)],
+    entities = [(Entity (0, 100) (0, 0) green 10 standardMove 100 10)],
     gamePaused = False,
     isShooting = False,
-    normalGun = GunData 7 0 500,
-    shotGun = GunData 7 100 200,
-    bigGun = GunData 50 0 300,
-    selectedGun = Norm
+    gun = DefaultGun
 }
 
 -- | Move entities
@@ -129,9 +120,20 @@ removeEntities (h:t) = newList
 
 removeEntities [] = []
 
+-- | Shoot gun
+shootGun :: VGame -> (VGame -> VGame)
+shootGun game = shootingGun
+    where
+        currentGun = if (isShooting game) then gun game else EmptyGun
+        shootingGun = getGun currentGun
+
+getGun :: Gun -> (VGame -> VGame)
+getGun EmptyGun = emptyGun
+getGun DefaultGun = defaultGun
+
 -- | Update game
 update :: Float -> VGame -> VGame
-update seconds game = updateEntities $ handleCollisionsEntities $ movePlayer seconds $ moveentities seconds game
+update seconds game = updateEntities $ handleCollisionsEntities $ (shootGun game) $ movePlayer seconds $ moveentities seconds game
 
 
 -- | Standard move function (player, bullets, some enemies)
@@ -158,3 +160,16 @@ calcLoc seconds entity = entity {pos = pos'} where
         y
 
     pos' = (x', y')
+
+-- | Empty gun (if not shooting)
+emptyGun :: VGame -> VGame
+emptyGun game = game
+
+-- | Default gun (other guns could spawn 5 bullets at a time, bigger bullets, etc)
+defaultGun :: VGame -> VGame
+defaultGun game = game {entities = afterShooting, isShooting = False}
+    where
+        oldEntities = entities game
+        newBullet = Entity (pos (player game)) (0, 250) red 10 standardMove 10 10
+        afterShooting = newBullet:oldEntities
+
