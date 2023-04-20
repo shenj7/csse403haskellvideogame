@@ -53,7 +53,7 @@ data VGame = Game {
 initialState :: VGame
 initialState = Game {
     player = playerEntity,
-    entities = [(Entity (0, 100) (10, 0) green 10 standardMove 100 10), (Entity (50, 100) (20, 0) green 10 (lineMove 50) 100 10)],
+    entities = level1,
     gamePaused = False,
     isShooting = False,
     gun = DefaultGun
@@ -112,7 +112,7 @@ removeEntities :: [Entity] -> [Entity]
 removeEntities (h:t) = newList
     where
         Entity (x, y) _ _ radius _ health _ = h
-        newList = if (health > 0 && (x >= (-width/2) + radius/2 && x <= width/2 - radius/2 && y >= (-height/2) + radius/2 && y <= height/2 - radius/2))
+        newList = if (health > 0 && (x >= (-width/2) - 5*radius && x <= width/2 + 5*radius && y >= (-height/2) - 5*radius && y <= height/2 + 5*radius))
             then
                 h: removeEntities t
             else
@@ -147,27 +147,38 @@ calcLoc :: Float -> Entity -> Entity
 calcLoc seconds entity = entity {pos = pos'} where
     (x, y) = pos entity
     (vx, vy) = vel entity
-    x' = if x + vx * seconds <= height/2 && x + vx * seconds >= (-height/2) 
+    x' = x + vx * seconds 
+    y' = y + vy * seconds
+
+    pos' = (x', y')
+
+-- | Straight line enemy
+lineMove :: Float -> Float -> Entity -> [Entity]
+lineMove steps seconds entity = wait steps seconds entity
+
+-- | Wait function
+-- wait :: Float -> Float -> Entity -> [Entity] -> (Float -> Entity -> [Entity])
+-- wait steps f2 = if steps == 0 then f2 else wait (steps - 1) f2
+
+-- | wait part 2 electric boogaloo
+wait :: Float -> Float -> Entity -> [Entity]
+wait steps seconds entity = [entity {pos = pos', move = wait (steps - 1)}] where
+    (x, y) = pos entity
+    (vx, vy) = vel entity
+    x' = if steps <= 0
     then 
         x + vx * seconds 
     else 
         x
 
-    y' = if y + vy * seconds <= width/2 && y + vy * seconds >= (-width/2)
+    y' = if steps <= 0
     then
         y + vy * seconds
     else
         y
 
     pos' = (x', y')
-
--- | Straight line enemy
-lineMove :: Int -> (Float -> Entity -> [Entity])
-lineMove steps seconds entity = (wait steps standardMove) seconds entity
-
--- | Wait function
-wait :: Int -> (Float -> Entity -> [Entity]) -> (Float -> Entity -> [Entity])
-wait steps f2 = if steps == 0 then f2 else wait (steps - 1) f2
+    
         
 
 -- | Empty gun (if not shooting)
@@ -182,3 +193,18 @@ defaultGun game = game {entities = afterShooting, isShooting = False}
         newBullet = Entity (pos (player game)) (0, 250) red 10 standardMove 10 10
         afterShooting = newBullet:oldEntities
 
+-- | first level of enemies
+level1 :: [Entity]
+level1 = [
+    (Entity ((-width/2)-20, 0) (30, 0) green 10 standardMove 20 10),
+    (Entity ((-width/2)-20, 100) (30, 0) green 10 (lineMove 200) 20 10),
+    (Entity ((-width/2)-20, 200) (30, 0) green 10 (lineMove 400) 20 10),
+    (Entity ((-width/2)-20, 300) (30, 0) green 10 (lineMove 600) 20 10),
+    (Entity ((-width/2)-20, 400) (30, 0) green 10 (lineMove 800) 20 10),
+    (Entity ((width/2)+20, 100) (-30, -20) yellow 10 standardMove 20 10),
+    (Entity ((width/2)+20, 200) (-30, -20) yellow 10 (lineMove 200) 20 10),
+    (Entity ((width/2)+20, 300) (-30, -20) yellow 10 (lineMove 400) 20 10),
+    (Entity ((width/2)+20, 400) (-30, -20) yellow 10 (lineMove 600) 20 10),
+    (Entity ((width/2)+20, 500) (-30, 20) yellow 10 (lineMove 800) 20 10),
+    (Entity (0, height/2+50) (0, -20) violet 25 (lineMove 1200) 100 1000)
+    ]
