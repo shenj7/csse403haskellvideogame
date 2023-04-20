@@ -20,43 +20,57 @@ handleKeys (EventKey (Char 'p') Down _ _) game =
 handleKeys (EventKey (Char 'w') Down _ _) game =
     game { player = newEntity  }
     where
-        Entity a b c d e = player game
-        newEntity = Entity a b c \x -> 
-
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx, vy+playerSpeed)}
 handleKeys (EventKey (Char 'w') Up _ _) game =
-    game { player = Sprite w x (y-150) z  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx, vy-playerSpeed)}
 
 -- For an 's' keypress, move player down
 handleKeys (EventKey (Char 's') Down _ _) game =
-    game { player = Sprite w x (y-150) z  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx, vy-playerSpeed)}
 handleKeys (EventKey (Char 's') Up _ _) game =
-    game { player = Sprite w x (y+150) z  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx, vy+playerSpeed)}
 
 -- For an 'a' keypress, move player left
 handleKeys (EventKey (Char 'a') Down _ _) game =
-    game { player = Sprite w x y (z-150)  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx-playerSpeed, vy)}
 handleKeys (EventKey (Char 'a') Up _ _) game =
-    game { player = Sprite w x y (z+150)  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx+playerSpeed, vy)}
 
 -- For an 'd' keypress, move player right
 handleKeys (EventKey (Char 'd') Down _ _) game =
-    game { player = Sprite w x y (z+150)  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx+playerSpeed, vy)}
 handleKeys (EventKey (Char 'd') Up _ _) game =
-    game { player = Sprite w x y (z-150)  }
+    game { player = newEntity  }
     where
-        Sprite w x y z = player game
+        oldplayer = player game
+        (vx, vy) = vel oldplayer
+        newEntity = oldplayer {vel = (vx-playerSpeed, vy)}
 
 -- For a 'j' keypress, shoot current equipped weapon
 handleKeys (EventKey (Char 'j') Down _ _) game =
@@ -66,7 +80,3 @@ handleKeys (EventKey (Char 'j') Up _ _) game =
 
 -- Do nothing for all other events.
 handleKeys _ game = game
-
--- | Update game
-update :: Float -> VGame -> VGame
-update seconds = movePlayer seconds $ moveentity seconds

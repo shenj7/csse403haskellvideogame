@@ -14,35 +14,32 @@ data GunSelect = Norm | Shot | Big
 -- | enemy position, speed
 data Entity = Entity {
     pos :: (Float, Float),
+    vel :: (Float, Float),
     shade :: Color,
     radius :: Float,
-    move :: Entity -> [Entity],
-    health :: Int
+    move :: Float -> Entity -> [Entity],
+    health :: Int,
+    damage :: Int
 }
 
 -- | player info
 playerEntity :: Entity
 playerEntity = Entity {
     pos = (0, 0),
+    vel = (0, 0),
     shade = dark blue,
     radius = 20,
-    move = \x -> [x],
-    health = 0
+    move = standardMove,
+    health = 100,
+    damage = 10
 }
-
--- 
--- enemy1 :: Entity
--- enemy1 = Entity {
---     pos = (0, 0),
---     move = enemy1move
--- }
 
 -- | Game parameters
 width, height, offset, playerSpeed, resetpos :: Float
-width = 700
-height = 900
+width = 1000
+height = 1000
 offset = 10
-playerSpeed = 10
+playerSpeed = 150
 resetpos = -250
 
 -- | Game state
@@ -61,7 +58,8 @@ data VGame = Game {
 initialState :: VGame
 initialState = Game {
     player = playerEntity,
-    entities = [],
+    entities = [(Entity (0, 0) (0, 10) red 10 standardMove 10 10),
+                (Entity (0, 100) (0, 0) green 10 standardMove 10 10)],
     gamePaused = False,
     isShooting = False,
     normalGun = GunData 7 0 500,
@@ -70,33 +68,93 @@ initialState = Game {
     selectedGun = Norm
 }
 
+-- | Move entities
+
 movePlayer :: Float -> VGame -> VGame
 movePlayer seconds game = game {player = newPlayer}
     where
-        newPlayer = head $ (\x -> (move x) x) (player game)
+        newPlayer = head $ (move $ player game) seconds (player game)
 
 moveentities :: Float -> VGame -> VGame
 moveentities seconds game = game {entities = newentities}
     where
-        newentities = concat $ map (\x -> (move x) x) (entities game)
+        newentities = concat $ map (\x -> (move x) seconds x) (entities game)
+
+-- | Collisions
+
+handleCollisionsEntities :: VGame -> VGame
+handleCollisionsEntities game = game {entities = newEntities}
+    where
+        entityList = entities game
+        newEntities = handlePairs entityList
+
+handlePairs :: [Entity] -> [Entity]
+handlePairs (h:t) = newHead:restList
+    where
+        newList = map (\x -> handleSingleCollision x h) t
+        newHead = foldl handleSingleCollision h t
+        restList = handlePairs newList
+handlePairs [] = []
+
+handleSingleCollision :: Entity -> Entity -> Entity
+handleSingleCollision main other = main {health = newHealth}
+    where
+        newHealth = if overlapEntities main other
+            then (health main) - (damage other)
+            else health main
+
+overlapEntities :: Entity -> Entity -> Bool
+overlapEntities e1 e2 = (distance (pos e1) (pos e2)) < ((radius e1) + (radius e2))
+
+distance :: (Float, Float) -> (Float, Float) -> Float
+distance (x1 , y1) (x2 , y2) = sqrt (x'*x' + y'*y')
+    where
+        x' = x1 - x2
+        y' = y1 - y2
+
+
+-- | Remove when off the screen
+updateEntities :: VGame -> VGame
+updateEntities game = game {entities = removeEntities $ entities game}
 
 removeEntities :: [Entity] -> [Entity]
 removeEntities (h:t) = newList
     where
-        Entity (w, x) _ _ _ _ = h
-        newList = if x >= (-width/2) - 20 && x <= width/2 + 20 && w >= (-height/2) - 20 && w <= height/2+20
+        Entity (x, y) _ _ radius _ health _ = h
+        newList = if (health > 0 && (x >= (-width/2) + radius/2 && x <= width/2 - radius/2 && y >= (-height/2) + radius/2 && y <= height/2 - radius/2))
             then
                 h: removeEntities t
             else
                 removeEntities t
 
-removeEntities [h] = newList
-    where
-        Entity (w, x) _ _ _ _ = h
-        newList = if x >= (-width/2) - 20 && x <= width/2 + 20 && w >= (-height/2) - 20 && w <= height/2 + 20
-            then
-                [h]
-            else
-                []
-
 removeEntities [] = []
+
+-- | Update game
+update :: Float -> VGame -> VGame
+update seconds game = updateEntities $ handleCollisionsEntities $ movePlayer seconds $ moveentities seconds game
+
+
+-- | Standard move function (player, bullets, some enemies)
+
+standardMove :: Float -> Entity -> [Entity]
+standardMove seconds entity = [newEntity]
+    where
+        newEntity = calcLoc seconds entity
+
+calcLoc :: Float -> Entity -> Entity
+calcLoc seconds entity = entity {pos = pos'} where
+    (x, y) = pos entity
+    (vx, vy) = vel entity
+    x' = if x + vx * seconds <= height/2 && x + vx * seconds >= (-height/2) 
+    then 
+        x + vx * seconds 
+    else 
+        x
+
+    y' = if y + vy * seconds <= width/2 && y + vy * seconds >= (-width/2)
+    then
+        y + vy * seconds
+    else
+        y
+
+    pos' = (x', y')

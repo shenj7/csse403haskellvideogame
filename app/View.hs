@@ -21,15 +21,15 @@ drawing = circle 20
 
 render :: VGame -> Picture
 render game =
-    pictures [playerchar, newentities]
+    pictures (playerchar:newentities)
     where
         playerchar = renderEntity (player game)
 
-        clearedlist = removeEntities (entities game)
-        newentities = map renderEntity newentities
+        -- clearedlist = removeEntities (entities game)
+        newentities = map renderEntity $ entities game
 
 renderEntity :: Entity -> Picture
 renderEntity entity = picture
     where
-        Entity (x, y) shade radius _ _ = entity
+        Entity (x, y) _ shade radius _ _ _ = entity
         picture = uncurry translate (x, y) $ color shade $ circleSolid radius
