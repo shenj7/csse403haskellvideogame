@@ -53,7 +53,7 @@ data VGame = Game {
 initialState :: VGame
 initialState = Game {
     player = playerEntity,
-    entities = [(Entity (0, 100) (0, 0) green 10 standardMove 100 10)],
+    entities = [(Entity (0, 100) (10, 0) green 10 standardMove 100 10), (Entity (50, 100) (20, 0) green 10 (lineMove 50) 100 10)],
     gamePaused = False,
     isShooting = False,
     gun = DefaultGun
@@ -160,6 +160,15 @@ calcLoc seconds entity = entity {pos = pos'} where
         y
 
     pos' = (x', y')
+
+-- | Straight line enemy
+lineMove :: Int -> (Float -> Entity -> [Entity])
+lineMove steps seconds entity = (wait steps standardMove) seconds entity
+
+-- | Wait function
+wait :: Int -> (Float -> Entity -> [Entity]) -> (Float -> Entity -> [Entity])
+wait steps f2 = if steps == 0 then f2 else wait (steps - 1) f2
+        
 
 -- | Empty gun (if not shooting)
 emptyGun :: VGame -> VGame
