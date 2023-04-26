@@ -30,7 +30,7 @@ playerEntity = Entity {
 }
 
 -- | Gun definitions
-data Gun = EmptyGun | DefaultGun -- Add more guns here and at the bottom of the file
+data Gun = EmptyGun | DefaultGun | TripleGun | HugeGun -- Add more guns here and at the bottom of the file
 
 -- | Game parameters
 width, height, offset, playerSpeed, resetpos :: Float
@@ -103,6 +103,14 @@ distance (x1 , y1) (x2 , y2) = sqrt (x'*x' + y'*y')
         x' = x1 - x2
         y' = y1 - y2
 
+handleCollisionsPlayer :: VGame -> VGame
+handleCollisionsPlayer game = game {player = newPlayer, entities = newEntities}
+    where
+        oldPlayer = player game
+        entityList = entities game
+        newEntities = map (\x -> handleSingleCollision x oldPlayer) entityList
+        newPlayer = foldl handleSingleCollision oldPlayer entityList
+
 
 -- | Remove when off the screen
 updateEntities :: VGame -> VGame
@@ -130,10 +138,19 @@ shootGun game = shootingGun
 getGun :: Gun -> (VGame -> VGame)
 getGun EmptyGun = emptyGun
 getGun DefaultGun = defaultGun
+getGun TripleGun = tripleGun
+getGun HugeGun = hugeGun
 
 -- | Update game
 update :: Float -> VGame -> VGame
-update seconds game = updateEntities $ handleCollisionsEntities $ (shootGun game) $ movePlayer seconds $ moveentities seconds game
+update seconds game = checkGameOver $ updateEntities $ handleCollisionsPlayer $ handleCollisionsEntities $ (shootGun game) $ movePlayer seconds $ moveentities seconds game
+
+-- | Game over
+checkGameOver :: VGame -> VGame
+checkGameOver game = game {player = newPlayer}
+    where
+        oldPlayer = player game
+        newPlayer = if (health oldPlayer <= 0) then oldPlayer {shade = black, radius = 5000} else oldPlayer
 
 
 -- | Standard move function (player, bullets, some enemies)
@@ -152,15 +169,9 @@ calcLoc seconds entity = entity {pos = pos'} where
 
     pos' = (x', y')
 
--- | Straight line enemy
-lineMove :: Float -> Float -> Entity -> [Entity]
-lineMove steps seconds entity = wait steps seconds entity
-
 -- | Wait function
 -- wait :: Float -> Float -> Entity -> [Entity] -> (Float -> Entity -> [Entity])
 -- wait steps f2 = if steps == 0 then f2 else wait (steps - 1) f2
-
--- | wait part 2 electric boogaloo
 wait :: Float -> Float -> Entity -> [Entity]
 wait steps seconds entity = [entity {pos = pos', move = wait (steps - 1)}] where
     (x, y) = pos entity
@@ -178,8 +189,21 @@ wait steps seconds entity = [entity {pos = pos', move = wait (steps - 1)}] where
         y
 
     pos' = (x', y')
-    
-        
+
+-- | Straight line enemy
+lineMove :: Float -> Float -> Entity -> [Entity]
+-- lineMove steps seconds entity = waitandshoot steps seconds entity
+lineMove steps seconds entity = enemyshoot seconds $ head $ wait steps seconds entity
+
+
+-- | shoot
+enemyshoot :: Float -> Entity -> [Entity]
+enemyshoot seconds entity = [entity, bullet]
+    where
+        (x, y) = pos entity
+        (vx, vy) = vel entity
+        bullet = entity {pos = (x+vx*seconds*100, y + vy*seconds*100), vel=(5*vx, 5*vy), shade = light blue, radius = 5, move = standardMove}
+
 
 -- | Empty gun (if not shooting)
 emptyGun :: VGame -> VGame
@@ -190,7 +214,28 @@ defaultGun :: VGame -> VGame
 defaultGun game = game {entities = afterShooting, isShooting = False}
     where
         oldEntities = entities game
-        newBullet = Entity (pos (player game)) (0, 250) red 10 standardMove 10 10
+        (x, y) = pos (player game)
+        newBullet = Entity (x, y+35) (0, 250) red 10 standardMove 10 10
+        afterShooting = newBullet:oldEntities
+
+-- | triple gun: shoots three bullets
+tripleGun :: VGame -> VGame
+tripleGun game = game {entities = afterShooting, isShooting = False}
+    where
+        oldEntities = entities game
+        (x, y) = pos (player game)
+        newBullet = Entity (x, y+35) (0, 250) red 8 standardMove 5 10
+        dbullet1 = Entity (x+35, y+35) (100, 200) red 5 standardMove 5 10
+        dbullet2 = Entity (x-35, y+35) (-100, 200) red 5 standardMove 5 10
+        afterShooting = newBullet:dbullet1:dbullet2:oldEntities
+
+-- | Huge gun: shoots a huge bullet
+hugeGun :: VGame -> VGame
+hugeGun game = game {entities = afterShooting, isShooting = False}
+    where
+        oldEntities = entities game
+        (x, y) = pos (player game)
+        newBullet = Entity (x, y+75) (0, 50) red 50 standardMove 10 10
         afterShooting = newBullet:oldEntities
 
 -- | first level of enemies
@@ -206,5 +251,5 @@ level1 = [
     (Entity ((width/2)+20, 300) (-30, -20) yellow 10 (lineMove 400) 20 10),
     (Entity ((width/2)+20, 400) (-30, -20) yellow 10 (lineMove 600) 20 10),
     (Entity ((width/2)+20, 500) (-30, 20) yellow 10 (lineMove 800) 20 10),
-    (Entity (0, height/2+50) (0, -20) violet 25 (lineMove 1200) 100 1000)
+    (Entity (0, height/2+50) (0, -20) violet 25 (lineMove 1000) 100 1000)
     ]

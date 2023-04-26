@@ -74,7 +74,13 @@ handleKeys (EventKey (Char 'd') Up _ _) game =
 
 -- For a 'j' keypress, shoot current equipped weapon
 handleKeys (EventKey (Char 'j') Down _ _) game =
-    game { isShooting = True  }
+    game { isShooting = True, gun = DefaultGun  }
+-- For a 'k' keypress, shoot current equipped weapon
+handleKeys (EventKey (Char 'k') Down _ _) game =
+    game { isShooting = True , gun = TripleGun }
+-- For a 'l' keypress, shoot current equipped weapon
+handleKeys (EventKey (Char 'l') Down _ _) game =
+    game { isShooting = True , gun = HugeGun }
 
 -- Do nothing for all other events.
 handleKeys _ game = game
